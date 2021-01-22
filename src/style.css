@@ -1,0 +1,13 @@
+.container {
+  text-align: center;
+  border: 1px solid transparent;
+  padding: 16px 32px;
+  border-image: linear-gradient(
+      90deg,
+      rgba(83, 88, 230, 0.88),
+      rgba(83, 88, 230, 0),
+      rgba(83, 88, 230, 0),
+      rgba(83, 88, 230, 0.88)
+    )
+    1 10;
+}
