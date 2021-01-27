@@ -1,0 +1,24 @@
+
+@startuml
+Hook <|.. SyncHook
+class Hook {
+  tap
+  tapAsync
+  tapPromise
+}
+class SyncHook {
+  compile
+  tapAsync
+  tapPromise
+}
+SyncHook *-right- SyncHookCodeFactory
+HookCodeFactory <|--  SyncHookCodeFactory
+class HookCodeFactory {
+  config
+  options
+  fn create()
+}
+class SyncHookCodeFactory {
+  content({ onError, onDone, rethrowIfPossible })
+}
+@enduml

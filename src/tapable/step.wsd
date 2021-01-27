@@ -1,0 +1,12 @@
+@startuml
+SyncHook实例 -> SyncHook实例: tap() 注册事件
+SyncHook实例 -> Hook: call() 触发事件
+Hook -> Hook: CALL_DELEGATE被调用，执行 this.call = this._createCall("sync");
+Hook -> Hook: return compile({taps: this.taps, type: ...})
+note right: compile 在 SyncHook 类中被重写\n并调用组合类实例的方法
+Hook -> SyncHookCodeFactory实例: factory.setup(this, options)
+SyncHookCodeFactory实例 -> SyncHookCodeFactory实例: 把注册的事件方法集合 taps \n放到工厂实例的 `_x` 上
+Hook -> SyncHookCodeFactory实例: factory.create(options)
+SyncHookCodeFactory实例 -> Hook: 动态返回相应的 new Function 生成的最终函数
+Hook <- Hook: return this.call(...args) 调用最终执行函数并返回
+@enduml
