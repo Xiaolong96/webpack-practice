@@ -5,8 +5,11 @@
       "type": "node",
       "request": "launch",
       "name": "debug webpack",
-      "program": "${workspaceFolder}/node_modules/webpack-cli/bin/cli.js",
-      "skipFiles": ["<node_internals>/**/*.js"]
+      "program": "${workspaceFolder}/debug/start.js",
+      "skipFiles": [
+        // "${workspaceFolder}/node_modules/**/*.js",
+        "<node_internals>/**/*.js"
+      ]
     }
   ]
 }

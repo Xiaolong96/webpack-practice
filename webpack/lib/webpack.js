@@ -96,6 +96,8 @@ const webpack = /** @type {WebpackFunctionSingle & WebpackFunctionMulti} */ ((
 	options,
 	callback
 ) => {
+	console.info("🎈 %c[webpack start]\n", "color: #1890ff;");
+
 	const create = () => {
 		validateSchema(webpackOptionsSchema, options);
 		/** @type {MultiCompiler|Compiler} */
