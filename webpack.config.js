@@ -5,11 +5,12 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 // const ManifestPlugin = require("webpack-manifest-plugin");
 const PrefixPlugin = require("./src/plugins/PrefixPlugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 const devMode = process.env.NODE_ENV !== "production";
 
 const plugins = [
-  new CleanWebpackPlugin(),
   // new ManifestPlugin(),
   new HtmlWebpackPlugin({
     inject: true,
@@ -21,6 +22,15 @@ const plugins = [
     // Definitions...
     "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
   }),
+  new ESLintPlugin({
+    context: path.resolve(__dirname),
+    failOnError: false,
+    files: "src",
+  }),
+  new CopyPlugin({
+    patterns: [{ from: "doc", to: "./" }],
+  }),
+  new webpack.BannerPlugin("Make by XiaoLong"),
 ];
 if (!devMode) {
   // enable in production only
@@ -28,13 +38,14 @@ if (!devMode) {
     new MiniCssExtractPlugin({
       filename: "css/[name].[contenthash].css",
       chunkFilename: "css/[id].[contenthash].css",
-    })
+    }),
+    new CleanWebpackPlugin()
   );
 }
 
 module.exports = {
   mode: process.env.NODE_ENV,
-  devtool: false,
+  devtool: "eval-source-map",
   devServer: {
     contentBase: path.join(__dirname, "build"),
     compress: true,
@@ -43,16 +54,44 @@ module.exports = {
     headers: {
       "X-Custom-Foo": "bar",
     },
+    // 代理
+    proxy: {
+      "/api": {
+        target: "https://www.xl.com:8080",
+        pathRewrite: {
+          "/api": "",
+        },
+      },
+    },
+    // mock 数据
+    before(app) {
+      app.get("/api", (req, res) => {
+        res.json({ data: "devServer" });
+      });
+    },
   },
+  watch: true,
   entry: path.resolve(__dirname, "./src/index.js"),
   output: {
     path: path.resolve(__dirname, "build"),
     filename: "js/[name].[contenthash].js",
     chunkFilename: "js/[id].[contenthash].js",
+    assetModuleFilename: "images/[hash][ext][query]",
   },
   // 这些选项决定了如何处理项目中的不同类型的模块。
   module: {
     rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-transform-runtime"],
+          },
+        },
+      },
       {
         test: /\.css$/,
         use: [
@@ -62,11 +101,18 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
-        use: ["file-loader"],
+        // use: ["file-loader"], // webpack5 不推荐使用，用 资产模块类型替代
+        // type: 'asset/resource',
+        type: "asset", // 在 file 和 data URI 之间自动选择
+        parser: {
+          dataUrlCondition: {
+            maxSize: 4 * 1024, // 4kb
+          },
+        },
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
-        use: ["file-loader"],
+        type: "asset/resource",
       },
     ],
   },

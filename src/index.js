@@ -1,9 +1,12 @@
 import { a } from "./buildTest/a";
-import logB from "./buildTest/b";
+import logB, { B, gen } from "./buildTest/b";
 import "./style.css";
+import bgImg from "./static/bg.jpg";
 
 console.log(a);
-logB();
+logB(1, 2, 3);
+B.call();
+// console.log(gen().next());
 
 import("./buildTest/c").then((test) => {
   console.log(test);
@@ -15,3 +18,7 @@ if (process.env.NODE_ENV === "development" && module.hot) {
     console.info("🎈 %c[module.hot]\n", "color: #1890ff;", "./buildTest/b.js");
   });
 }
+
+const img = new Image(400);
+img.src = bgImg;
+document.body.appendChild(img);
