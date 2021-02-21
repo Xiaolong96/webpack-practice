@@ -2,11 +2,11 @@
  * @Author: xiongxiaolong
  * @Date: 2020-06-28 17:31:07
  * @LastEditors: xiongxiaolong
- * @LastEditTime: 2021-01-21 21:58:31
+ * @LastEditTime: 2021-02-20 02:19:43
  * @Description: file information
  */
 //导入包
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 const parser = require("@babel/parser");
 const traverse = require("@babel/traverse").default;
@@ -17,7 +17,7 @@ function stepOne(filename) {
   const content = fs.readFileSync(filename, "utf-8");
   // 利用 @babel/parser 生成AST抽象语法树
   const ast = parser.parse(content, {
-    sourceType: "module", //babel官方规定必须加这个参数，不然无法识别ES Module
+    sourceType: "module", // babel官方规定必须加这个参数，不然无法识别ES Module
   });
   const dependencies = {};
   //利用 @babel/traverse 遍历AST抽象语法树
@@ -43,13 +43,13 @@ function stepOne(filename) {
 //entry为入口文件
 function stepTwo(entry) {
   const entryModule = stepOne(entry);
-  //这个数组是核心，虽然现在只有一个元素，往后看你就会明白
+
   const graphArray = [entryModule];
   for (let i = 0; i < graphArray.length; i++) {
     const item = graphArray[i];
-    const { dependencies } = item; //拿到文件所依赖的模块集合(键值对存储)
+    const { dependencies } = item; // 拿到文件所依赖的模块集合(键值对存储)
     for (let j in dependencies) {
-      graphArray.push(stepOne(dependencies[j])); //敲黑板！关键代码，目的是将入口模块及其所有相关的模块放入数组
+      graphArray.push(stepOne(dependencies[j])); // 将入口模块及其所有相关的模块放入数组
     }
   }
   //接下来生成图谱
@@ -63,14 +63,15 @@ function stepTwo(entry) {
   return graph;
 }
 
-console.log(stepTwo("./src/index.js"));
+// console.log(stepTwo("./src/index.js"));
 
 //下面是生成代码字符串的操作，仔细看，不要眨眼睛哦！
 function step3(entry) {
   //要先把对象转换为字符串，不然在下面的模板字符串中会默认调取对象的toString方法，参数变成[Object object],显然不行
   const graph = JSON.stringify(stepTwo(entry));
   return `
-      (function(graph) {
+      (function() {
+          var graph = ${graph};
           //require函数的本质是执行一个模块的代码，然后将相应变量挂载到exports对象上
           function require(module) {
               //localRequire的本质是拿到依赖包的exports变量
@@ -84,12 +85,16 @@ function step3(entry) {
               return exports;//函数返回指向局部变量，形成闭包，exports变量在函数执行后不会被摧毁
           }
           require('${entry}')
-      })(${graph})`;
+      })()`;
 }
 
 //最终测试
 const code = step3("./src/index.js");
-console.log(code);
+
+// 写入文件
+const destDir = path.resolve(__dirname, "build");
+fs.ensureDirSync(destDir);
+fs.writeFileSync(path.join(destDir, "main.js"), code);
 
 /*
 核心功能

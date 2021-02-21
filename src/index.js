@@ -1,7 +1,7 @@
 import { a } from "./buildTest/a";
 import logB, { B, gen } from "./buildTest/b";
 import "./style.css";
-import bgImg from "./static/bg.jpg";
+import fireImg from "./static/fire.png";
 
 console.log(a);
 logB(1, 2, 3);
@@ -19,6 +19,6 @@ if (process.env.NODE_ENV === "development" && module.hot) {
   });
 }
 
-const img = new Image(400);
-img.src = bgImg;
+const img = new Image(100);
+img.src = fireImg;
 document.body.appendChild(img);

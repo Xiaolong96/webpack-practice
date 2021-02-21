@@ -30,7 +30,7 @@ const plugins = [
   new CopyPlugin({
     patterns: [{ from: "doc", to: "./" }],
   }),
-  new webpack.BannerPlugin("Make by XiaoLong"),
+  // new webpack.BannerPlugin("Make by XiaoLong"),
 ];
 if (!devMode) {
   // enable in production only
@@ -83,11 +83,21 @@ module.exports = {
     rules: [
       {
         test: /\.m?js$/,
+        use: {
+          loader: path.resolve(__dirname, "src/loaders/prefix-loader.js"),
+          options: {
+            text: "这是 prefix-loader 加上的",
+            filename: path.resolve(__dirname, "src/loaders/prefix.txt"),
+          },
+        },
+      },
+      {
+        test: /\.m?js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/preset-env"],
+            presets: [["@babel/preset-env", { modules: false }]],
             plugins: ["@babel/plugin-transform-runtime"],
           },
         },
@@ -102,6 +112,9 @@ module.exports = {
       {
         test: /\.(png|svg|jpg|gif)$/,
         // use: ["file-loader"], // webpack5 不推荐使用，用 资产模块类型替代
+        // use: {
+        //   loader: path.resolve(__dirname, "src/loaders/file-loader.js"),
+        // },
         // type: 'asset/resource',
         type: "asset", // 在 file 和 data URI 之间自动选择
         parser: {

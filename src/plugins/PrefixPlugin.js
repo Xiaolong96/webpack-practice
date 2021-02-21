@@ -2,7 +2,7 @@
  * @Author: xiongxiaolong
  * @Date: 2021-02-10 20:55:49
  * @LastEditors: xiongxiaolong
- * @LastEditTime: 2021-02-17 01:09:49
+ * @LastEditTime: 2021-02-21 04:09:06
  * @Description: file information
  */
 // 处理源码拼接库
@@ -21,12 +21,11 @@ class PrefixPlugin {
         },
         () => {
           var assets = compilation.getAssets();
-          // console.info("🎈 %c[flag]\n", "color: #1890ff;", assets);
 
           assets.forEach((asset) => {
-            if (/^main.*\.js$/.test(asset.name)) {
+            if (/main\..*\.js$/.test(asset.name)) {
               var source = new ConcatSource(
-                `#!/usr/bin/env node\n\n\n`,
+                `/*! 这是 prefix-plugin 加上的 */`,
                 asset.source
               );
               compilation.updateAsset(asset.name, source);
