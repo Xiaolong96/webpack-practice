@@ -1,5 +1,5 @@
 const logB = (...args) => {
-  console.log("args.length: ", args.length);
+  console.log("args.length:sd ", args.length);
 };
 export class B {
   static call() {
@@ -10,5 +10,7 @@ export class B {
 // export const gen = function* () {
 //   yield "generator called";
 // };
+
+document.getElementsByClassName("container")[0].innerHTML = "Hi~";
 
 export default logB;

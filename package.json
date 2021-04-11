@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_ENV=production npx webpack --progress",
+    "buildTest": "npx webpack --progress --config ./webpack.buildTest.config",
     "start": "NODE_ENV=development webpack serve"
   },
   "author": "",
